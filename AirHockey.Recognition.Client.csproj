@@ -119,6 +119,11 @@
   <ItemGroup>
     <Compile Include="Networking\BomBomClient.cs" />
     <Compile Include="ImageProcessing\PictureHelper.cs" />
+    <Compile Include="Networking\CommandRepository.cs" />
+    <Compile Include="Networking\InitCommand.cs" />
+    <Compile Include="Networking\NetworkConstants.cs" />
+    <Compile Include="Data\Polygon.cs" />
+    <Compile Include="Networking\ServerCommands.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

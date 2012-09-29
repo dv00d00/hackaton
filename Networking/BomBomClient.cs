@@ -2,47 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Net.Sockets;
     using System.Threading.Tasks;
 
-    static class NetworkConstants
-    {
-        public const byte ClientType = 5;
-    }
-
-    static class ServerCommands
-    {
-        public const byte AccelerometerData = 0;
-
-        public const byte Init = 1;
-
-        public const byte Name = 2;
-
-        public const byte Notification = 3;
-    }
-
-    public class InitCommand 
-    {
-        public byte[] Serialize()
-        {
-            var data = new byte[]
-                {
-                    ServerCommands.Init,
-                    NetworkConstants.ClientType
-                };
-
-            return data;
-        }
-    }
-
-    public class CommandRepository
-    {
-        public InitCommand GetInitCommand()
-        {
-            return new InitCommand();
-        }
-    }
+    using AirHockey.Recognition.Client.Data;
 
     public class BomBomClient : IDisposable
     {
@@ -100,14 +63,6 @@
         private Task SendData(byte[] data)
         {
             return this.networkStream.WriteAsync(data, 0, data.Length);
-        }
-    }
-
-    public class Polygon
-    {
-        public Polygon(List<Point> points)
-        {
-            
         }
     }
 }

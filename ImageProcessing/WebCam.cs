@@ -48,7 +48,7 @@
 
             if (this.storeBackground)
             {
-                this.backgroundFrame = webCamImage;
+                this.backgroundFrame = new Bitmap(webCamImage);
                 this.storeBackground = false;
             }
 

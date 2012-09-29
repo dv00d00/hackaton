@@ -3,38 +3,53 @@
     using System;
     using System.Drawing;
     using System.Drawing.Imaging;
+    using System.Linq;
+
+    using AForge.Imaging.Filters;
 
     public class DiffCalculator
     {
-        private const byte THERSHOLD = 20;
+        private static FillHoles fillHoles;
+        private static Threshold threshold;
+
+        private static GaussianBlur gaussianBlur;
+
+        private const byte THERSHOLD = 10;
+        
+        public static byte Max(params byte[] points)
+        {
+            return points.Max();
+        }
+        
+        public static int Sum(params int[] points)
+        {
+            return points.Sum();
+        }
+
+        static DiffCalculator()
+        {
+            threshold = new Threshold(THERSHOLD);
+            fillHoles = new FillHoles();
+            fillHoles.MaxHoleHeight = 125;
+            fillHoles.MaxHoleWidth = 125;
+            fillHoles.CoupledSizeFiltering = true;
+
+            gaussianBlur = new GaussianBlur(3, 11);
+        }
 
         public static unsafe Bitmap PixelDiff(Bitmap a, Bitmap b)
         {
-            Bitmap output = new Bitmap(a.Width, a.Height, PixelFormat.Format32bppArgb);
-            Rectangle rect = new Rectangle(Point.Empty, a.Size);
-            using (var aData = a.LockBitsDisposable(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb))
-            using (var bData = b.LockBitsDisposable(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb))
-            using (var outputData = output.LockBitsDisposable(rect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb))
-            {
-                byte* aPtr = (byte*)aData.Scan0;
-                byte* bPtr = (byte*)bData.Scan0;
-                byte* outputPtr = (byte*)outputData.Scan0;
-                int len = aData.Stride * aData.Height;
-                for (int i = 0; i < len; i += 4)
-                {
-                    byte diff = (byte)(Math.Abs(aPtr[0] + aPtr[1] + aPtr[2] - bPtr[0] - bPtr[1] - bPtr[2]) / 3);
+            var difference = new Difference(a);
+            var dif =  difference.Apply(b);
 
-                    byte result = (byte)(diff > THERSHOLD ? 255 : 0);
+            gaussianBlur.ApplyInPlace(dif);
 
-                    outputPtr[0] = outputPtr[1] = outputPtr[2] = result;
-                    outputPtr[3] = 255;
+            Bitmap clone = Grayscale.CommonAlgorithms.Y.Apply(dif);
 
-                    outputPtr += 4;
-                    aPtr += 4;
-                    bPtr += 4;
-                }
-            }
-            return output;
+            threshold.ApplyInPlace(clone);
+            fillHoles.ApplyInPlace(clone);
+
+            return clone;
         }
     }
 }

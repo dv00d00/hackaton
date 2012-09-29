@@ -52,10 +52,12 @@ namespace AirHockey.Recognition.Client.ImageProcessing
             return this.blobs.Length;
         }
 
-        public IEnumerable<Blob> GetBlobs()
+        private IEnumerable<Blob> GetBlobs()
         {
-            return this.blobs.Where(it => it.Area > 10);
+            return this.blobs.Where(it => it.Area > 20);
         }
+
+         
 
         // Paint the control
         public void Draw(Bitmap iutputBitmap)
