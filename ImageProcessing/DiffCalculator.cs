@@ -1,10 +1,10 @@
-﻿namespace WPFCSharpWebCam
+﻿namespace AirHockey.Recognition.Client.ImageProcessing
 {
     using System;
     using System.Drawing;
     using System.Drawing.Imaging;
 
-    public class Diff
+    public class DiffCalculator
     {
         private const byte THERSHOLD = 20;
 

@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Windows.Media.Imaging;
-
-namespace WPFCSharpWebCam
+﻿namespace AirHockey.Recognition.Client.ImageProcessing
 {
+    using System;
+    using System.IO;
+    using System.Windows.Media.Imaging;
     using System.Windows;
     using System.Windows.Interop;
 
     //Design by Pongsakorn Poosankam
-    class Helper
+    public class PictureHelper
     {
         //Block Memory Leak
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
