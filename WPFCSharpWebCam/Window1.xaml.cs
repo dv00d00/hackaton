@@ -18,7 +18,7 @@ namespace WPFCSharpWebCam
         {
         	// TODO: Add event handler implementation here.
             webcam = new WebCam();
-            webcam.InitializeWebCam(this.imgVideo, this.diffImage);
+            webcam.InitializeWebCam(this.imgVideo, this.diffImage, this.rects);
         }
 
         private void bntStart_Click(object sender, RoutedEventArgs e)

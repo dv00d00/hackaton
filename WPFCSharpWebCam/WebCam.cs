@@ -4,6 +4,8 @@ namespace WPFCSharpWebCam
 {
     using System.Drawing;
 
+    using BlobsExplorer;
+
     using Image = System.Windows.Controls.Image;
 
     //Design by Pongsakorn Poosankam
@@ -19,7 +21,17 @@ namespace WPFCSharpWebCam
 
         private bool storeBackground;
 
-        public void InitializeWebCam(Image videoOutput, Image diffOutput)
+        private BlobsBrowser blobsBrowser;
+
+        private Image rects;
+
+        public WebCam()
+        {
+            blobsBrowser = new BlobsBrowser();
+            blobsBrowser.Highlighting = BlobsBrowser.HightlightType.ConvexHull;
+        }
+
+        public void InitializeWebCam(Image videoOutput, Image diffOutput, Image rects)
         {
             webcam = new WebCamCapture
             {
@@ -30,6 +42,8 @@ namespace WPFCSharpWebCam
             webcam.ImageCaptured += this.webcam_ImageCaptured;
             this.videoOutput = videoOutput;
             this.diffOutput = diffOutput;
+
+            this.rects = rects;
         }
 
         void webcam_ImageCaptured(object source, WebcamEventArgs e)
@@ -47,6 +61,13 @@ namespace WPFCSharpWebCam
                 using (var bitmap = new Bitmap(webCamImage))
                 {
                     var pixelDiff = Diff.PixelDiff(this.backgroundFrame, bitmap);
+
+                    blobsBrowser.SetImage(pixelDiff);
+                    var bitmapWithRects = new Bitmap(webCamImage.Width, webCamImage.Height);
+                    blobsBrowser.Draw(bitmapWithRects);
+
+                    this.rects.Source = Helper.LoadBitmap(bitmapWithRects);
+
                     this.diffOutput.Source = Helper.LoadBitmap(pixelDiff);
                 }
             }
