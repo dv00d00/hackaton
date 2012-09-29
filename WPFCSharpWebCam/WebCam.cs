@@ -4,8 +4,6 @@ namespace WPFCSharpWebCam
 {
     using System.Drawing;
 
-    using BlobsExplorer;
-
     using Image = System.Windows.Controls.Image;
 
     //Design by Pongsakorn Poosankam

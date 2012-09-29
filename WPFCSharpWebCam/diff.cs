@@ -6,7 +6,7 @@
 
     public class Diff
     {
-        private const byte Thershold = 20;
+        private const byte THERSHOLD = 20;
 
         public static unsafe Bitmap PixelDiff(Bitmap a, Bitmap b)
         {
@@ -22,10 +22,9 @@
                 int len = aData.Stride * aData.Height;
                 for (int i = 0; i < len; i += 4)
                 {
-                    // byte diff = (byte)(Math.Abs(aPtr[0] + aPtr[1] + aPtr[2] - bPtr[0] - bPtr[1] - bPtr[2]) / 3);
                     byte diff = (byte)(Math.Abs(aPtr[0] + aPtr[1] + aPtr[2] - bPtr[0] - bPtr[1] - bPtr[2]) / 3);
 
-                    byte result = (byte)(diff > Thershold ? 255 : 0);
+                    byte result = (byte)(diff > THERSHOLD ? 255 : 0);
 
                     outputPtr[0] = outputPtr[1] = outputPtr[2] = result;
                     outputPtr[3] = 255;

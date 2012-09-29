@@ -6,24 +6,20 @@
 // contacts@aforgenet.com
 //
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Data;
-using System.Text;
-using System.Windows.Forms;
-
-using AForge;
-using AForge.Imaging;
-using AForge.Math.Geometry;
-
-namespace BlobsExplorer
+namespace WPFCSharpWebCam
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Imaging;
     using System.Linq;
+    using System.Windows.Forms;
 
-    public delegate void BlobSelectionHandler( object sender, Blob blob );
+    using AForge;
+    using AForge.Imaging;
+    using AForge.Math.Geometry;
+
+    public delegate void BlobSelectionHandler(object sender, Blob blob);
 
     public class BlobsBrowser : Control
     {
@@ -31,20 +27,17 @@ namespace BlobsExplorer
         private int imageWidth, imageHeight;
         private Control parent = null;
 
-        private BlobCounter blobCounter = new BlobCounter( );
+        private BlobCounter blobCounter = new BlobCounter();
         private Blob[] blobs;
         private int selectedBlobID;
 
-        Dictionary<int, List<IntPoint>> leftEdges   = new Dictionary<int, List<IntPoint>>( );
-        Dictionary<int, List<IntPoint>> rightEdges  = new Dictionary<int, List<IntPoint>>( );
-        Dictionary<int, List<IntPoint>> topEdges    = new Dictionary<int, List<IntPoint>>( );
-        Dictionary<int, List<IntPoint>> bottomEdges = new Dictionary<int, List<IntPoint>>( );
+        Dictionary<int, List<IntPoint>> leftEdges = new Dictionary<int, List<IntPoint>>();
+        Dictionary<int, List<IntPoint>> rightEdges = new Dictionary<int, List<IntPoint>>();
+        Dictionary<int, List<IntPoint>> topEdges = new Dictionary<int, List<IntPoint>>();
+        Dictionary<int, List<IntPoint>> bottomEdges = new Dictionary<int, List<IntPoint>>();
 
-        Dictionary<int, List<IntPoint>> hulls = new Dictionary<int, List<IntPoint>>( );
-        Dictionary<int, List<IntPoint>> quadrilaterals = new Dictionary<int, List<IntPoint>>( );
-
-        // Event to notify about selected blob
-        public event BlobSelectionHandler BlobSelected;
+        Dictionary<int, List<IntPoint>> hulls = new Dictionary<int, List<IntPoint>>();
+        Dictionary<int, List<IntPoint>> quadrilaterals = new Dictionary<int, List<IntPoint>>();
 
         // Blobs' highlight types enumeration
         public enum HightlightType
@@ -56,7 +49,6 @@ namespace BlobsExplorer
         }
 
         private HightlightType highlighting = HightlightType.Quadrilateral;
-        private bool showRectangleAroundSelection = false;
 
         // Blobs' highlight type
         public HightlightType Highlighting
@@ -65,99 +57,92 @@ namespace BlobsExplorer
             set
             {
                 highlighting = value;
-                Invalidate( );
+                Invalidate();
             }
         }
 
-        // Show rectangle around selection or not
-        public bool ShowRectangleAroundSelection
-        {
-            get { return showRectangleAroundSelection; }
-            set
-            {
-                showRectangleAroundSelection = value;
-                Invalidate( );
-            }
-        }
-
-        public BlobsBrowser( )
+        public BlobsBrowser()
         {
             // update control style
-            SetStyle( ControlStyles.AllPaintingInWmPaint | ControlStyles.ResizeRedraw |
-                ControlStyles.DoubleBuffer | ControlStyles.UserPaint, true );
+            SetStyle(
+                ControlStyles.AllPaintingInWmPaint
+                | ControlStyles.ResizeRedraw
+                | ControlStyles.DoubleBuffer
+                | ControlStyles.UserPaint,
+                true);
         }
 
         // Set image to display by the control
-        public int SetImage( Bitmap image )
+        public int SetImage(Bitmap image)
         {
-            leftEdges.Clear( );
-            rightEdges.Clear( );
-            topEdges.Clear( );
-            bottomEdges.Clear( );
-            hulls.Clear( );
-            quadrilaterals.Clear( );
+            leftEdges.Clear();
+            rightEdges.Clear();
+            topEdges.Clear();
+            bottomEdges.Clear();
+            hulls.Clear();
+            quadrilaterals.Clear();
 
             selectedBlobID = 0;
 
-            this.image  = AForge.Imaging.Image.Clone( image, PixelFormat.Format24bppRgb );
-            imageWidth  = this.image.Width;
+            this.image = AForge.Imaging.Image.Clone(image, PixelFormat.Format24bppRgb);
+            imageWidth = this.image.Width;
             imageHeight = this.image.Height;
 
-            blobCounter.ProcessImage( this.image );
-            blobs = blobCounter.GetObjectsInformation( );
+            blobCounter.ProcessImage(this.image);
+            blobs = blobCounter.GetObjectsInformation();
 
-            GrahamConvexHull grahamScan = new GrahamConvexHull( );
+            GrahamConvexHull grahamScan = new GrahamConvexHull();
 
-            foreach ( Blob blob in blobs.Where(it => it.Area > 10))
+            foreach (Blob blob in blobs.Where(it => it.Area > 10))
             {
-                List<IntPoint> leftEdge   = new List<IntPoint>( );
-                List<IntPoint> rightEdge  = new List<IntPoint>( );
-                List<IntPoint> topEdge    = new List<IntPoint>( );
-                List<IntPoint> bottomEdge = new List<IntPoint>( );
+                List<IntPoint> leftEdge = new List<IntPoint>();
+                List<IntPoint> rightEdge = new List<IntPoint>();
+                List<IntPoint> topEdge = new List<IntPoint>();
+                List<IntPoint> bottomEdge = new List<IntPoint>();
 
                 // collect edge points
-                blobCounter.GetBlobsLeftAndRightEdges( blob, out leftEdge, out rightEdge );
-                blobCounter.GetBlobsTopAndBottomEdges( blob, out topEdge, out bottomEdge );
+                blobCounter.GetBlobsLeftAndRightEdges(blob, out leftEdge, out rightEdge);
+                blobCounter.GetBlobsTopAndBottomEdges(blob, out topEdge, out bottomEdge);
 
-                leftEdges.Add( blob.ID, leftEdge );
-                rightEdges.Add( blob.ID, rightEdge );
-                topEdges.Add( blob.ID, topEdge );
-                bottomEdges.Add( blob.ID, bottomEdge );
+                leftEdges.Add(blob.ID, leftEdge);
+                rightEdges.Add(blob.ID, rightEdge);
+                topEdges.Add(blob.ID, topEdge);
+                bottomEdges.Add(blob.ID, bottomEdge);
 
                 // find convex hull
-                List<IntPoint> edgePoints = new List<IntPoint>( );
-                edgePoints.AddRange( leftEdge );
-                edgePoints.AddRange( rightEdge );
+                List<IntPoint> edgePoints = new List<IntPoint>();
+                edgePoints.AddRange(leftEdge);
+                edgePoints.AddRange(rightEdge);
 
-                List<IntPoint> hull = grahamScan.FindHull( edgePoints );
-                hulls.Add( blob.ID, hull );
+                List<IntPoint> hull = grahamScan.FindHull(edgePoints);
+                hulls.Add(blob.ID, hull);
 
                 List<IntPoint> quadrilateral = null;
 
                 // find quadrilateral
-                if ( hull.Count < 4 )
+                if (hull.Count < 4)
                 {
-                    quadrilateral = new List<IntPoint>( hull );
+                    quadrilateral = new List<IntPoint>(hull);
                 }
                 else
                 {
-                    quadrilateral = PointsCloud.FindQuadrilateralCorners( hull );
+                    quadrilateral = PointsCloud.FindQuadrilateralCorners(hull);
                 }
-                quadrilaterals.Add( blob.ID, quadrilateral );
+                quadrilaterals.Add(blob.ID, quadrilateral);
 
                 // shift all points for vizualization
-                IntPoint shift = new IntPoint( 1, 1 );
+                IntPoint shift = new IntPoint(1, 1);
 
-                PointsCloud.Shift( leftEdge, shift );
-                PointsCloud.Shift( rightEdge, shift );
-                PointsCloud.Shift( topEdge, shift );
-                PointsCloud.Shift( bottomEdge, shift );
-                PointsCloud.Shift( hull, shift );
-                PointsCloud.Shift( quadrilateral, shift );
+                PointsCloud.Shift(leftEdge, shift);
+                PointsCloud.Shift(rightEdge, shift);
+                PointsCloud.Shift(topEdge, shift);
+                PointsCloud.Shift(bottomEdge, shift);
+                PointsCloud.Shift(hull, shift);
+                PointsCloud.Shift(quadrilateral, shift);
             }
 
-            UpdatePosition( );
-            Invalidate( );
+            UpdatePosition();
+            Invalidate();
 
             return blobs.Length;
         }
@@ -189,7 +174,7 @@ namespace BlobsExplorer
                     {
                         Pen pen = (blob.ID == selectedBlobID) ? highlightPenBold : highlightPen;
 
-                        if ((showRectangleAroundSelection) && (blob.ID == selectedBlobID))
+                        if (blob.ID == selectedBlobID)
                         {
                             g.DrawRectangle(rectPen, blob.Rectangle);
                         }
@@ -226,125 +211,60 @@ namespace BlobsExplorer
         }
 
         // Update controls size and position
-        private void UpdatePosition( )
+        private void UpdatePosition()
         {
-            if ( this.Parent != null )
+            if (this.Parent != null)
             {
                 Rectangle rc = this.Parent.ClientRectangle;
-                int width  = 320;
+                int width = 320;
                 int height = 240;
 
-                if ( image != null )
+                if (image != null)
                 {
                     // get frame size
-                    width  = imageWidth;
+                    width = imageWidth;
                     height = imageHeight;
                 }
 
                 // update controls size and location
-                this.SuspendLayout( );
-                this.Location = new System.Drawing.Point( ( rc.Width - width - 2 ) / 2, ( rc.Height - height - 2 ) / 2 );
-                this.Size = new Size( width + 2, height + 2 );
-                this.ResumeLayout( );
-            }
-        }
-
-        // Parent of the control has changed
-        private void BlobsBrowser_ParentChanged( object sender, EventArgs e )
-        {
-            if ( parent != null )
-            {
-                parent.SizeChanged -= new EventHandler( parent_SizeChanged );
-            }
-
-            parent = this.Parent;
-
-            // set handler for Size Changed parent's event
-            if ( parent != null )
-            {
-                parent.SizeChanged += new EventHandler( parent_SizeChanged );
+                this.SuspendLayout();
+                this.Location = new System.Drawing.Point((rc.Width - width - 2) / 2, (rc.Height - height - 2) / 2);
+                this.Size = new Size(width + 2, height + 2);
+                this.ResumeLayout();
             }
         }
 
         // Parent control has changed its size
-        private void parent_SizeChanged( object sender, EventArgs e )
+        private void parent_SizeChanged(object sender, EventArgs e)
         {
-            UpdatePosition( );
-        }
-
-        // On mouse moving - update cursor
-        private void BlobsBrowser_MouseMove( object sender, MouseEventArgs e )
-        {
-            int x = e.X - 1;
-            int y = e.Y - 1;
-
-            if ( ( image != null ) && ( x >= 0 ) && ( y >= 0 ) &&
-                 ( x < imageWidth ) && ( y < imageHeight ) &&
-                 ( blobCounter.ObjectLabels[y * imageWidth + x] != 0 ) )
-            {
-                this.Cursor = Cursors.Hand;
-            }
-            else
-            {
-                this.Cursor = Cursors.Default;
-            }
-        }
-
-        // On mouse click - notify user if blob was clicked
-        private void BlobsBrowser_MouseClick( object sender, MouseEventArgs e )
-        {
-            int x = e.X - 1;
-            int y = e.Y - 1;
-
-            if ( ( image != null ) && ( x >= 0 ) && ( y >= 0 ) &&
-                 ( x < imageWidth ) && ( y < imageHeight ) )
-            {
-                int blobID = blobCounter.ObjectLabels[y * imageWidth + x];
-
-                if ( blobID != 0 )
-                {
-                    selectedBlobID = blobID;
-                    Invalidate( );
-
-                    if ( BlobSelected != null )
-                    {
-                        for ( int i = 0; i < blobs.Length; i++ )
-                        {
-                            if ( blobs[i].ID == blobID )
-                            {
-                                BlobSelected( this, blobs[i] );
-                            }
-                        }
-                    }
-                }
-            }
+            UpdatePosition();
         }
 
         // Convert list of AForge.NET's IntPoint to array of .NET's Point
-        private static System.Drawing.Point[] PointsListToArray( List<IntPoint> list )
+        private static System.Drawing.Point[] PointsListToArray(List<IntPoint> list)
         {
             System.Drawing.Point[] array = new System.Drawing.Point[list.Count];
 
-            for ( int i = 0, n = list.Count; i < n; i++ )
+            for (int i = 0, n = list.Count; i < n; i++)
             {
-                array[i] = new System.Drawing.Point( list[i].X, list[i].Y );
+                array[i] = new System.Drawing.Point(list[i].X, list[i].Y);
             }
 
             return array;
         }
 
         // Draw object's edge
-        private static void DrawEdge( Graphics g, Pen pen, List<IntPoint> edge )
+        private static void DrawEdge(Graphics g, Pen pen, List<IntPoint> edge)
         {
-            System.Drawing.Point[] points = PointsListToArray( edge );
+            System.Drawing.Point[] points = PointsListToArray(edge);
 
-            if ( points.Length > 1 )
+            if (points.Length > 1)
             {
-                g.DrawLines( pen, points );
+                g.DrawLines(pen, points);
             }
             else
             {
-                g.DrawLine( pen, points[0], points[0] );
+                g.DrawLine(pen, points[0], points[0]);
             }
         }
     }
