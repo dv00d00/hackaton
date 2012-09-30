@@ -27,10 +27,21 @@
     		<ColumnDefinition Width="87"/>
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-		<Border  Grid.Column="1" Grid.Row="1" BorderThickness="3" CornerRadius="3">
+		<Border Grid.Column="1" Grid.Row="1" BorderThickness="3" CornerRadius="3">
+            <Grid>
 
-			<Image x:Name="imgVideo" Stretch="Fill"   />
-		</Border>
+                <Canvas Name="canvas" Width="201" Height="205"
+                        MouseDown="UIElement_OnMouseDown" 
+                        MouseMove="canvas_MouseMove_1"
+                        MouseUp="canvas_MouseUp_1">
+                    <Image x:Name="imgVideo" Width="201" Height="205" Stretch="Fill" />
+                    <Rectangle Name="selection" Width="0" Height="0" Fill="#3FFF0017"/>
+                </Canvas>
+                
+                
+                
+            </Grid>
+        </Border>
     	<Border  Grid.Column="3" Grid.Row="1" BorderThickness="3" CornerRadius="3">
 			
 			<Image x:Name="imgCapture" Stretch="Fill"/>

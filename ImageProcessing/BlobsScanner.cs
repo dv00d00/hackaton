@@ -15,6 +15,7 @@ namespace AirHockey.Recognition.Client.ImageProcessing
 
         private Bitmap image;
         private Blob[] blobs;
+        
 
         // Set monochromeImage to display by the control
         public int ScanImage(Bitmap monochromeImage)

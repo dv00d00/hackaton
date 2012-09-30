@@ -1,5 +1,7 @@
 ﻿namespace AirHockey.Recognition.Client.ImageProcessing
 {
+    using AForge.Imaging.Filters;
+
     using WebCam_Capture;
 
     using System.Drawing;
@@ -21,6 +23,8 @@
         private BlobsScanner blobsScanner;
 
         private Image rects;
+
+        private Rectangle? selection;
 
         public WebCam()
         {
@@ -58,16 +62,30 @@
                 {
                     var pixelDiff = DiffCalculator.PixelDiff(this.backgroundFrame, bitmap);
 
-                    this.blobsScanner.ScanImage(pixelDiff);
+                    var cropped = CropDiff(pixelDiff);
+
+                    this.blobsScanner.ScanImage(cropped);
                     var bitmapWithRects = new Bitmap(webCamImage.Width, webCamImage.Height);
                     this.blobsScanner.Draw(bitmapWithRects);
 
-                    this.diffOutput.Source = PictureHelper.LoadBitmap(pixelDiff);
+                    this.diffOutput.Source = PictureHelper.LoadBitmap(cropped);
                     this.rects.Source = PictureHelper.LoadBitmap(bitmapWithRects);
                 }
             }
 
             this.videoOutput.Source = PictureHelper.LoadBitmap(webCamImage);
+        }
+
+        private Bitmap CropDiff(Bitmap pixelDiff)
+        {
+            if (selection != null)
+            {
+                var crop = new Crop(selection.Value);
+
+                return crop.Apply(pixelDiff);
+            }
+
+            return pixelDiff;
         }
 
         public void Start()
@@ -103,6 +121,11 @@
         public void StoreBackgroung()
         {
             this.storeBackground = true;
+        }
+
+        public void SetSelection(Rectangle result)
+        {
+            this.selection = result;
         }
     }
 }

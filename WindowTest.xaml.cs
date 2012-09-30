@@ -1,79 +1,39 @@
-﻿namespace AirHockey.Recognition.Client
-{
-    using System;
-    using System.Drawing;
-    using System.Windows;
-    using System.Windows.Controls;
-    using System.Windows.Input;
-    using System.Windows.Media.Imaging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 
-    using AirHockey.Recognition.Client.ImageProcessing;
+namespace AirHockey.Recognition.Client
+{
+    using System.Drawing;
 
     using Point = System.Windows.Point;
 
     /// <summary>
-    /// Interaction logic for Window1.xaml
+    /// Interaction logic for WindowTest.xaml
     /// </summary>
-    public partial class Window1 : Window
+    public partial class WindowTest : Window
     {
-        public Window1()
-        {
-            this.InitializeComponent();
-        }
-
-        WebCam webcam;
-
         private bool mooving;
 
-        private void mainWindow_Loaded(object sender, RoutedEventArgs e)
+        public WindowTest()
         {
-        	// TODO: Add event handler implementation here.
-            this.webcam = new WebCam();
-            this.webcam.InitializeWebCam(this.imgVideo, this.diffImage, this.rects);
-            
-        }
-
-        private void bntStart_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.Start();
-        }
-
-        private void bntStop_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.Stop();
-        }
-
-        private void bntContinue_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.Continue();
-        }
-
-        private void bntCapture_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.StoreBackgroung();
-
-            this.imgCapture.Source = this.imgVideo.Source;
-        }
-
-        private void bntSaveImage_Click(object sender, RoutedEventArgs e)
-        {
-            PictureHelper.SaveImageCapture((BitmapSource)this.imgCapture.Source);
-        }
-
-        private void bntResolution_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.ResolutionSetting();
-        }
-
-        private void bntSetting_Click(object sender, RoutedEventArgs e)
-        {
-            this.webcam.AdvanceSetting();
+            InitializeComponent();
         }
 
         private void UIElement_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             Point position = e.GetPosition(canvas);
-
+            
             Canvas.SetLeft(selection, position.X);
             Canvas.SetTop(selection, position.Y);
 
@@ -93,8 +53,6 @@
             mooving = false;
 
             var result = GetSelectedPixels();
-
-            webcam.SetSelection(result);
         }
 
         private void canvas_MouseMove_1(object sender, MouseEventArgs e)
@@ -121,8 +79,8 @@
             double screenWidth = selection.Width;
             double screenHeight = selection.Height;
 
-            double sourceWidth = imgVideo.Source.Width;
-            double sourceHeight = imgVideo.Source.Height;
+            double sourceWidth = image.Source.Width;
+            double sourceHeight = image.Source.Width;
 
             double xScale = canvas.Width / sourceWidth;
             double yScale = canvas.Height / sourceHeight;

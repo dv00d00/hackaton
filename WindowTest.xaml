@@ -1,0 +1,14 @@
+﻿<Window x:Class="AirHockey.Recognition.Client.WindowTest"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WindowTest" Height="550" Width="690">
+    <Grid>
+        <Canvas Height="480" Width="640" Name="canvas" 
+                MouseDown="UIElement_OnMouseDown" 
+                MouseMove="canvas_MouseMove_1"
+                MouseUp="canvas_MouseUp_1">
+            <Image Source="D:\Image.jpg" Height="480" Width="640" x:Name="image"/>
+            <Rectangle Name="selection" Width="50" Height="50" Fill="#3FFF0017"/>
+        </Canvas>
+    </Grid>
+</Window>
