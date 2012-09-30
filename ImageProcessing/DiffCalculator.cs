@@ -1,8 +1,6 @@
 ﻿namespace AirHockey.Recognition.Client.ImageProcessing
 {
-    using System;
     using System.Drawing;
-    using System.Drawing.Imaging;
     using System.Linq;
 
     using AForge.Imaging.Filters;
@@ -14,7 +12,7 @@
 
         private static GaussianBlur gaussianBlur;
 
-        private const byte THERSHOLD = 10;
+        private const byte THERSHOLD = 40;
         
         public static byte Max(params byte[] points)
         {
@@ -37,7 +35,7 @@
             gaussianBlur = new GaussianBlur(3, 11);
         }
 
-        public static unsafe Bitmap PixelDiff(Bitmap a, Bitmap b)
+        public static Bitmap PixelDiff(Bitmap a, Bitmap b)
         {
             var difference = new Difference(a);
             var dif =  difference.Apply(b);

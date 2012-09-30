@@ -57,8 +57,6 @@ namespace AirHockey.Recognition.Client.ImageProcessing
             return this.blobs.Where(it => it.Area > 20);
         }
 
-         
-
         // Paint the control
         public void Draw(Bitmap iutputBitmap)
         {
